@@ -52,7 +52,7 @@ st.title("English Passage Readability & Vocabulary Checker")
 
 st.write(
     "This tool analyzes **readability**, estimates **CEFR level**, "
-    "and identifies **advanced vocabulary (non-Oxford 3000 words)**."
+    "and identifies **vocabulary (non-Oxford 3000 words)**."
 )
 
 st.subheader("Enter Your English Passage")
@@ -110,12 +110,12 @@ if st.button("Analyze Passage"):
 
         st.markdown("---")
 
-        st.markdown("## 🚨 Advanced Vocabulary Analysis (Non-Oxford 3000)")
+        st.markdown("## 🚨 Vocabulary Analysis (Non-Oxford 3000)")
         st.write(f"**Total Unique Words:** {total_words}")
-        st.write(f"**Advanced (Non-Oxford) Words:** {advanced_count}")
-        st.write(f"**Advanced Vocabulary Percentage:** {advanced_percentage:.2f}%")
+        st.write(f"**(Non-Oxford) Words:** {advanced_count}")
+        st.write(f"**Vocabulary Percentage:** {advanced_percentage:.2f}%")
 
-        with st.expander("View Advanced (Non-Oxford) Words Used"):
+        with st.expander("View (Non-Oxford) Words Used"):
             st.write(sorted(non_oxford_words))
 
         # -------------------------------
@@ -146,3 +146,4 @@ if st.button("Analyze Passage"):
 | C1 | Advanced | Complex texts |
 | C2 | Proficient | Expert-level comprehension |
             """)
+
