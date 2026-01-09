@@ -3,15 +3,13 @@ from textstat import textstat
 import fitz  # PyMuPDF
 import re
 
-# -------------------------------
+# -------------------------------------------------
 # Functions
-# -------------------------------
+# -------------------------------------------------
 
 @st.cache_data
 def load_oxford_3000(pdf_path):
-    """
-    Load Oxford 3000 words from the provided PDF
-    """
+    """Load Oxford 3000 words from the provided PDF"""
     doc = fitz.open(pdf_path)
     words = set()
 
@@ -26,45 +24,46 @@ def load_oxford_3000(pdf_path):
 
 
 def extract_words(text):
-    """
-    Extract unique words from user passage
-    """
+    """Extract unique words from user passage"""
     text = text.lower()
     text = re.sub(r"[^a-z\s]", " ", text)
     return set(text.split())
 
 
-# -------------------------------
+# -------------------------------------------------
 # Load Oxford 3000
-# -------------------------------
-OXFORD_PDF = "American_Oxford_3000.pdf"  # Make sure this PDF is in the same folder
+# -------------------------------------------------
+
+OXFORD_PDF = "American_Oxford_3000.pdf"
 oxford_words = load_oxford_3000(OXFORD_PDF)
 
-# -------------------------------
+# -------------------------------------------------
 # Streamlit UI
-# -------------------------------
+# -------------------------------------------------
+
 st.set_page_config(
-    page_title="Readability & Oxford 3000 Checker",
+    page_title="Readability & Vocabulary Checker",
     layout="centered"
 )
 
-st.title("English Passage Readability & Vocabulary Checker")
+st.title("📘 English Passage Readability & Vocabulary Checker")
 
 st.write(
-    "This tool analyzes **readability**, estimates **CEFR level**, "
-    "and checks **Oxford 3000 vocabulary coverage**."
+    "This tool analyzes **text readability**, estimates **CEFR level**, "
+    "and identifies **advanced (non-Oxford 3000) vocabulary**."
 )
 
-st.subheader("Enter Your English Passage")
+st.subheader("✍️ Enter Your English Passage")
 text = st.text_area("Paste your passage below:", height=260)
 
 if st.button("Analyze Passage"):
     if not text.strip():
         st.warning("Please enter a passage to analyze.")
     else:
-        # -------------------------------
+        # -------------------------------------------------
         # Readability Score
-        # -------------------------------
+        # -------------------------------------------------
+
         flesch_score = textstat.flesch_reading_ease(text)
 
         if flesch_score >= 90:
@@ -86,20 +85,22 @@ if st.button("Analyze Passage"):
             level, color = "Very Difficult (Postgraduate)", "red"
             cefr = "C2 (Proficient)"
 
-        # -------------------------------
-        # Oxford 3000 Analysis
-        # -------------------------------
+        # -------------------------------------------------
+        # Vocabulary Analysis
+        # -------------------------------------------------
+
         passage_words = extract_words(text)
-        matched_oxford = passage_words.intersection(oxford_words)
+        non_oxford_words = passage_words - oxford_words
 
         total_words = len(passage_words)
-        oxford_count = len(matched_oxford)
-        coverage = (oxford_count / total_words) * 100 if total_words else 0
+        advanced_count = len(non_oxford_words)
+        advanced_percent = (advanced_count / total_words) * 100 if total_words else 0
 
-        # -------------------------------
+        # -------------------------------------------------
         # Display Results
-        # -------------------------------
-        st.markdown("## Results")
+        # -------------------------------------------------
+
+        st.markdown("## 📊 Results")
 
         st.markdown(f"**Flesch Reading Ease Score:** `{flesch_score:.2f}`")
         st.markdown(
@@ -110,41 +111,15 @@ if st.button("Analyze Passage"):
 
         st.markdown("---")
 
-        st.markdown("## 📘 Oxford 3000 Vocabulary Analysis")
+        st.markdown("## 🚨 Advanced Vocabulary Analysis (Non-Oxford 3000)")
         st.write(f"**Total Unique Words:** {total_words}")
-        st.write(f"**Oxford 3000 Words Found:** {oxford_count}")
-        st.write(f"**Oxford 3000 Coverage:** {coverage:.2f}%")
+        st.write(f"**Advanced / Non-Oxford Words:** {advanced_count}")
+        st.write(f"**Advanced Vocabulary Percentage:** {advanced_percent:.2f}%")
 
-        with st.expander("View Oxford 3000 Words Used"):
-            st.write(sorted(matched_oxford))
+        with st.expander("📋 View Advanced (Non-Oxford) Words"):
+            st.write(sorted(non_oxford_words))
 
-        # -------------------------------
-        # Interpretation Scales
-        # -------------------------------
-        with st.expander("📊 View Interpretation Scales"):
-            # Flesch Reading Ease Scale
-            st.markdown("### Interpretation Scale (Flesch Reading Ease)")
-            st.write("""
-| Score Range | Interpretation | Approx. Education Level |
-|-------------|----------------|--------------------------|
-| 90–100 | Very Easy | 5th grade |
-| 80–89 | Easy | 6th grade |
-| 70–79 | Fairly Easy | 7th grade |
-| 60–69 | Standard | 8th–9th grade |
-| 50–59 | Fairly Difficult | 10th–12th grade |
-| 30–49 | Difficult | College |
-| 0–29 | Very Difficult | College graduate |
-            """)
-
-            # CEFR Scale
-            st.markdown("### CEFR Readability Scale")
-            st.write("""
-| CEFR Level | Description | Typical Reader |
-|------------|-------------|----------------|
-| A1 | Beginner | Basic English user |
-| A2 | Elementary | Simple communication |
-| B1 | Intermediate | Everyday language |
-| B2 | Upper-Intermediate | Professional/academic |
-| C1 | Advanced | Complex texts |
-| C2 | Proficient | Expert-level comprehension |
-            """)
+        st.caption(
+            "⚠️ Readability and CEFR levels are **estimates** based on text complexity "
+            "and vocabulary usage, not official certification."
+        )
